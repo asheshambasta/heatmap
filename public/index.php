@@ -16,6 +16,9 @@ if(!isset($_SESSION['access_token'])) {
 <head>
 </head>
 <body>
-<h1><?php echo $_SESSION['access_token']; ?><h1>
+  <script src="js/std/d3.v3.min.js"></script>
+  <script src="js/std/jquery-1.9.1.min.js"></script>
+  <script src="js/app/app.js"></script>
+  <div id="access_token" data-access_token="<?php echo $_SESSION['access_token']; ?>"></div>
 </body>
 </html>
