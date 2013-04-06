@@ -1,0 +1,13 @@
+.cell_white {
+  background-color: white;
+  width: 15px;
+  height: 15px;
+  border: 1px solid grey;
+  float: left;
+}
+.row {
+  background-color: white;
+  width: 408px;
+  height: 18px;
+  border: 2px solid white;
+}

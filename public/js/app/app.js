@@ -27,6 +27,27 @@ function setUserID(accessToken) {
   });
 }
 
+function addRow(cellValues) {
+  //pad cellValues, if needed
+  for (var i = cellValues.length; i < 24; i++) {
+    cellValues.push({value: -1});
+  }
+  var container = d3.select('div#chart_container');
+  var rows = container.selectAll('div.row');
+  var newRowID = "row_" + rows[0].length;
+  container
+  .append('div')
+  .classed('row', true)
+  .attr('id', newRowID);
+  //add cells to the new row
+  var row = container.select('div#' + newRowID);
+  for(var i = 0; i < 24; i++) {
+    var cellID = "cell_" + newRowID + "_" + i;
+    row.append('div').classed('cell_white', true).attr('id', cellID);
+  }
+  container.select('div#' + newRowID).selectAll('div').data(cellValues);
+}
+
 function getInsights(facetDefs, dateFrom, dateTo) {
   if(!userID) {
     return false;
