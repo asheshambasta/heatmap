@@ -1,6 +1,7 @@
 var userID        = null;
 var userCompany   = null;
 var userName      = null;
+var userEmail     = null;
 var accessToken   = null;
 
 /**
@@ -19,8 +20,34 @@ function setUserID(accessToken) {
         userID        = response.response.id;
         userCompany   = response.response.company;
         userName      = response.response.name;
+        userEmail     = response.response.email;
       }
     },
+    dataType: 'jsonp'
+  });
+}
+
+function getInsights(facetDefs, dateFrom, dateTo) {
+  if(!userID) {
+    return false;
+  }
+  var url = 'http://api.engagor.com/' + userID +  '/insights/facets';
+  console.log("Trying to get insights from: " + url);
+  var data = {
+    facetdefinitions: JSON.stringify(facetDefs),
+    date_from: dateFrom,
+    date_to: dateTo,
+    access_token: accessToken
+  };
+  console.log("Using data: ");
+  console.log(data);
+  $.ajax({
+    url: url,
+    data: data,
+    success: function(response) {
+      console.log(response);
+    },
+    type: 'POST',
     dataType: 'jsonp'
   });
 }
