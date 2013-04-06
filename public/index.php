@@ -1,0 +1,21 @@
+<?php
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'init.php';
+//check if access token is set for the user
+if(!isset($_SESSION['access_token'])) {
+  //if not, redirect for authorization
+  //FIXME get a more static store for the access_token? Even memcached will do here
+  header('Location: http://app.engagor.com/oauth/authorize/?client_id=bfe018c7d26460178130e41c0d5c8c52&response_type=code&scope=socialprofiles');
+  //after successful authorization, we'll redirect back to index.php and do the rest
+  //of the stuff to call the api.
+}
+
+// else, user has access token, proceed with the stuff here.
+?>
+<html>
+<head>
+</head>
+<body>
+<h1><?php echo $_SESSION['access_token']; ?><h1>
+</body>
+</html>
