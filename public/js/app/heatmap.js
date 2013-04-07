@@ -8,6 +8,8 @@ var heatmap = {
   allCellValues: [],
   maxCellValue: 0,
 
+  callback: function() {},
+
   /**
    * Set the user id from API
    * @param   String  accessToken The access token for API calls
@@ -18,7 +20,7 @@ var heatmap = {
     var that = this;
     var data = {
       endpoint: 'userinfo',
-      access_token: accessToken
+      access_token: accessToken,
     };
     $.ajax({
       url: 'api.php',
@@ -33,7 +35,10 @@ var heatmap = {
           that.userEmail     = response.response.email;
         }
       },
-      dataType: 'jsonp'
+      error: function(xhr, errorMsg, err) {
+        console.log(errorMsg);
+        console.log(err);
+      }
     });
     return apiResponse;
   },
@@ -65,15 +70,15 @@ var heatmap = {
     var container = d3.select('div#chart_container');
     var that = this;
     container
-    .selectAll('div.cell_white')
-    .data(this.allCellValues)
-    .style(
-      'background-color', 
-      function(cellValue) { 
-        var colour = that.getColour(cellValue, that.sumCells);
-        console.log(colour);
-        return colour; 
-      });
+      .selectAll('div.cell_white')
+      .data(this.allCellValues)
+      .style(
+        'background-color', 
+        function(cellValue) { 
+          var colour = that.getColour(cellValue, that.sumCells);
+          console.log(colour);
+          return colour; 
+        });
   },
 
   getColour: function(cellValue, sumCells) {

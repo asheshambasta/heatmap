@@ -1,6 +1,6 @@
 <?php
 require_once 'init.php';
-ob_clean();
+header('content-type: application/json;'); 
 $urlInfo = array(
 
   'USERINFO'    => array(
