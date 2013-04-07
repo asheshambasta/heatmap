@@ -3,6 +3,8 @@ var userCompany   = null;
 var userName      = null;
 var userEmail     = null;
 var accessToken   = null;
+var sumCells      = 0;
+var allCellValues = [];
 
 /**
  * Set the user id from API
@@ -28,24 +30,47 @@ function setUserID(accessToken) {
 }
 
 function addRow(cellValues) {
-  //pad cellValues, if needed
-  for (var i = cellValues.length; i < 24; i++) {
-    cellValues.push({value: -1});
-  }
+
   var container = d3.select('div#chart_container');
   var rows = container.selectAll('div.row');
   var newRowID = "row_" + rows[0].length;
-  container
-  .append('div')
-  .classed('row', true)
-  .attr('id', newRowID);
+  container.append('div').classed('row', true).attr('id', newRowID);
+
   //add cells to the new row
   var row = container.select('div#' + newRowID);
-  for(var i = 0; i < 24; i++) {
+  for(var i = 0; i < cellValues.length; i++) {
+    sumCells += cellValues[i];
+    allCellValues.push(cellValues[i]);
     var cellID = "cell_" + newRowID + "_" + i;
     row.append('div').classed('cell_white', true).attr('id', cellID);
   }
-  container.select('div#' + newRowID).selectAll('div').data(cellValues);
+  row.selectAll('div').data(cellValues).attr(
+    'title', 
+    function(cellValue) {
+      return cellValue;
+    });
+}
+
+function paintGrid() {
+  var container = d3.select('div#chart_container');
+  container
+    .selectAll('div.cell_white')
+    .data(allCellValues)
+    .style(
+      'background-color', 
+      function(cellValue) { 
+        return getColor(cellValue, sumCells); 
+      });
+}
+
+function getColor(cellValue, sumCells) {
+  var R, G, B;
+  R = G = B = 255;
+  var frac = cellValue/(sumCells ? sumCells : 1);
+  var diff = Math.round(255 * frac);
+  B -= diff;
+  G -= diff;
+  return 'rgb(' + R + ',' + G + ',' + B + ')';
 }
 
 function getInsights(facetDefs, dateFrom, dateTo) {
