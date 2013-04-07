@@ -3,25 +3,32 @@ require_once 'init.php';
 ob_clean();
 $urlInfo = array(
 
-  'userinfo'    => array(
+  'USERINFO'    => array(
 
     'url'           => 'http://api.engagor.com/me', 
     'cache_expire'  => 0),
 
-  'insights'    => array(
+  'INSIGHTS'    => array(
 
     'url'           => 'http://api.engagor.com/:account_id/insights/facets',
     'cache_expire'  => 0)
 
-);
-$key = md5(implode('.', $_REQUEST));
-$output = array('info' => 'from_cache', 'output' => '');
-//FIXME check cache for key, if hit, return from cache, else try calling api
-if(FALSE) {
+  );
+$endpoint = strtoupper($_REQUEST['endpoint']);
+
+$riak = new Basho\Riak\Riak(RIAK_ADDR, RIAK_PORT);
+$bucketName = $_SESSION['access_token'];
+$bucket = $riak->bucket($bucketName);
+$cacheData = $bucket->get($endpoint);
+
+if(!empty($cacheData->data)) {
   //cache hit
+  $output = stripslashes($cacheData->data[0]); 
+  error_log("###CACHE HIT FOR: " . $bucketName . "/" . $endpoint);
 } else {
-  //prepare to call the api
-  $url = $urlInfo[$_REQUEST['endpoint']]['url'];
+  //cache miss
+  error_log("###CACHE MISS FOR: " . $bucketName . "/" . $endpoint);
+  $url = $urlInfo[$endpoint]['url'];
   if(isset($_REQUEST['user_id'])) {
     $url = str_replace(':account_id', $_REQUEST['user_id'], $url);
   }
@@ -36,7 +43,10 @@ if(FALSE) {
 
   $requestStr = implode('&', $request);
   $url .= "?" . $requestStr;
-  echo file_get_contents($url);
+  $output = file_get_contents($url);
+  $cacheData = $bucket->newObject($endpoint, array($output));
+  $cacheData->store();
   //FIXME add error handling stuff here as well
 }
+echo $output;
 ?>

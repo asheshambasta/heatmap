@@ -6,7 +6,7 @@ if(!isset($_SESSION['access_token'])) {
   //if not, redirect for authorization
   //FIXME get a more static store for the access_token? Even memcached will do here
   $redirectURI = 
-    'Location: http://app.engagor.com/oauth/authorize/?client_id=' . CLIENT_ID . '&response_type=code&scope=accounts_read%20socialprofiles';
+    'Location: http://app.engagor.com/oauth/authorize/?client_id=' . CLIENT_ID . '&response_type=code&scope=accounts_read%20socialprofiles%20accounts_write%20email';
   header($redirectURI);
   //after successful authorization, we'll redirect back to index.php and do the rest
   //of the stuff to call the api.

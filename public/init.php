@@ -10,6 +10,11 @@ set_include_path(
       dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app')));
 
 
+require_once 'Riak/Riak.php';
+require_once 'Riak/Bucket.php';
+require_once 'Riak/Object.php';
+require_once 'Riak/Utils.php';
+require_once 'Riak/StringIO.php';
 //read main.ini and initialise global constants based on that.
 $mainINIPath = UNIVERSAL_DIR . DIRECTORY_SEPARATOR . 'config/main.ini';
 $config = parse_ini_file($mainINIPath, TRUE);
