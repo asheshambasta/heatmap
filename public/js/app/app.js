@@ -1,4 +1,4 @@
-var app = {
+var heatmap = {
   userID: null,
   userCompany: null,
   userName: null,
@@ -79,7 +79,7 @@ var app = {
     var diffFrac = diffFromMax/(this.maxCellValue ? this.maxCellValue : 1);
     B = Math.round(255 * diffFrac);
     G = Math.round(100 * diffFrac);
-    A = 0.3 + 0.7 * (cellValue/this.maxCellValue);
+    A = cellValue/this.maxCellValue;
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
   },
 
@@ -108,14 +108,3 @@ var app = {
     });
   }
 }
-
-
-/**
- * All the stuff happens here
- */
-$(document).ready(
-  function() {
-  //set the access token and the user id
-  app.accessToken = $("#access_token").data('access_token');
-  app.setUserID(app.accessToken);
-});
