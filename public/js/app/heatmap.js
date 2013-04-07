@@ -14,13 +14,18 @@ var heatmap = {
    */
   setUserID: function(accessToken) {
     //make ajax call to API
+    var apiResponse = null;
     var that = this;
+    var data = {
+      endpoint: 'userinfo',
+      access_token: accessToken
+    };
     $.ajax({
-      url: 'http://api.engagor.com/me',
-      data: {access_token: accessToken},
-      type: 'post',
+      url: 'api.php',
+      data: data,
       success: function(response) {
         console.log(response);
+        apiResponse = response;
         if(200 == response.meta.code) {
           that.userID        = response.response.id;
           that.userCompany   = response.response.company;
@@ -30,6 +35,7 @@ var heatmap = {
       },
       dataType: 'jsonp'
     });
+    return apiResponse;
   },
 
   addRow: function(cellValues) {
