@@ -6,6 +6,7 @@
   border-right: 2px solid white;
   border-left: 2px solid white;
   float: left;
+  box-shadow: 3px 4px 4px #F5F5F5;
 }
 .row {
   width: 576px;
