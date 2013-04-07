@@ -93,23 +93,22 @@ var heatmap = {
     if(!this.userID) {
       return false;
     }
-    var url = 'http://api.engagor.com/' + this.userID +  '/insights/facets';
-    console.log("Trying to get insights from: " + url);
     var data = {
-      facetdefinitions: JSON.stringify(facetDefs),
+      endpoint: 'insights',
+      facetdefinitions: encodeURIComponent(JSON.stringify(facetDefs)),
       date_from: dateFrom,
       date_to: dateTo,
-      access_token: this.accessToken
+      access_token: this.accessToken,
+      user_id: this.userID
     };
     console.log("Using data: ");
     console.log(data);
     $.ajax({
-      url: url,
+      url: 'api.php',
       data: data,
       success: function(response) {
         console.log(response);
       },
-      type: 'POST',
       dataType: 'jsonp'
     });
   }
