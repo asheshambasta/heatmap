@@ -84,16 +84,16 @@ var heatmap = {
   },
 
   getInsights: function(facetDefs, dateFrom, dateTo) {
-    if(!userID) {
+    if(!this.userID) {
       return false;
     }
-    var url = 'http://api.engagor.com/' + userID +  '/insights/facets';
+    var url = 'http://api.engagor.com/' + this.userID +  '/insights/facets';
     console.log("Trying to get insights from: " + url);
     var data = {
       facetdefinitions: JSON.stringify(facetDefs),
       date_from: dateFrom,
       date_to: dateTo,
-      access_token: accessToken
+      access_token: this.accessToken
     };
     console.log("Using data: ");
     console.log(data);
