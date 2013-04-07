@@ -1,11 +1,14 @@
 .cell_white {
-  width: 15px;
+  width: 20px;
   height: 15px;
-  border: 1px solid grey;
+  border-top: 2px solid white;
+  border-bottom: 2px solid white;
+  border-right: 2px solid white;
+  border-left: 2px solid white;
   float: left;
 }
 .row {
-  width: 408px;
-  height: 18px;
+  width: 576px;
+  height: 15px;
   border: 2px solid white;
 }

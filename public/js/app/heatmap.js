@@ -85,7 +85,7 @@ var heatmap = {
     var diffFrac = diffFromMax/(this.maxCellValue ? this.maxCellValue : 1);
     B = Math.round(255 * diffFrac);
     G = Math.round(100 * diffFrac);
-    A = cellValue/this.maxCellValue;
+    A = 0.05 + cellValue/this.maxCellValue;
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
   },
 
