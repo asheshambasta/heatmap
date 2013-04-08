@@ -22,6 +22,7 @@ if(!isset($_SESSION['access_token'])) {
   <script src="js/std/d3.v3.min.js"></script>
   <script src="js/std/jquery-1.9.1.min.js"></script>
   <script src="js/app/heatmap.js"></script>
+  <script src="js/app/api.js"></script>
   <script src="js/app/ready.js"></script>
   <div id="access_token" data-access_token="<?php echo $_SESSION['access_token']; ?>"></div>
 <div id="chart_container">

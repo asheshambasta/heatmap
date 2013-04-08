@@ -4,6 +4,7 @@
 $(document).ready(
   function() {
   //set the access token and the user id
-  heatmap.accessToken = $("#access_token").data('access_token');
-  heatmap.setUserID(heatmap.accessToken);
+  api.accessToken = $("#access_token").data('access_token');
+  api.setUserID();
+  api.setAccountInfo();
 });

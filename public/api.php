@@ -38,7 +38,7 @@ if(!empty($cacheData->data)) {
   $url = $urlInfo[$endpoint]['url'];
   $toCache = $urlInfo[$endpoint]['cache'];
 
-  if(isset($_REQUEST['user_id'])) {
+  if(isset($_REQUEST['account_id'])) {
     $url = str_replace(':account_id', $_REQUEST['account_id'], $url);
   }
 
@@ -53,6 +53,7 @@ if(!empty($cacheData->data)) {
 
   $requestStr = implode('&', $request);
   $url .= "?" . $requestStr;
+  error_log("###" . $url);
 
   $output = file_get_contents($url);
   $outputArr = json_decode($output, TRUE);
