@@ -4,7 +4,9 @@ $_SESSION['access_token'] = NULL;
 if (isset($_REQUEST['code'])) {
   //get new access token
   $tokenURL = 'http://app.engagor.com/oauth/access_token/?client_id=' . CLIENT_ID . '&client_secret=' . CLIENT_SECRET . '&grant_type=authorization_code&code=' . $_REQUEST['code'];
-  $tokenResponse = json_decode(file_get_contents($tokenURL), TRUE);
+  $responseStr = file_get_contents($tokenURL);
+  error_log("###" . $responseStr);
+  $tokenResponse = json_decode($responseStr, TRUE);
   //check if we got an access_token without problems
   if(isset($tokenResponse['access_token'])) {
     //set in the session

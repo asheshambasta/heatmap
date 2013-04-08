@@ -6,11 +6,18 @@ $urlInfo = array(
   'USERINFO'    => array(
 
     'url'           => 'http://api.engagor.com/me', 
+    'cache'         => TRUE,
+    'cache_expire'  => 0),
+
+  'ACCOUNTS'    => array(
+    'url'           => 'http://api.engagor.com/me/accounts',
+    'cache'         => FALSE,
     'cache_expire'  => 0),
 
   'INSIGHTS'    => array(
 
     'url'           => 'http://api.engagor.com/:account_id/insights/facets',
+    'cache'         => FALSE,
     'cache_expire'  => 0)
 
   );
@@ -29,9 +36,12 @@ if(!empty($cacheData->data)) {
   //cache miss
   error_log("###CACHE MISS FOR: " . $bucketName . "/" . $endpoint);
   $url = $urlInfo[$endpoint]['url'];
+  $toCache = $urlInfo[$endpoint]['cache'];
+
   if(isset($_REQUEST['user_id'])) {
-    $url = str_replace(':account_id', $_REQUEST['user_id'], $url);
+    $url = str_replace(':account_id', $_REQUEST['account_id'], $url);
   }
+
   $request = array();
   $params = array_keys($_REQUEST);
   foreach($params as $param) {
@@ -43,9 +53,15 @@ if(!empty($cacheData->data)) {
 
   $requestStr = implode('&', $request);
   $url .= "?" . $requestStr;
+
   $output = file_get_contents($url);
-  $cacheData = $bucket->newObject($endpoint, array($output));
-  $cacheData->store();
+  $outputArr = json_decode($output, TRUE);
+
+  //Cache only when there's no error, no point otherwise
+  if(!isset($outputArr['error']) && $toCache) {
+    $cacheData = $bucket->newObject($endpoint, array($output));
+    $cacheData->store();
+  }
   //FIXME add error handling stuff here as well
 }
 echo $output;

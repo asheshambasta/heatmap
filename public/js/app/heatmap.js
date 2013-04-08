@@ -7,6 +7,7 @@ var heatmap = {
   sumCells: 0,
   allCellValues: [],
   maxCellValue: 0,
+  accounts: {},
 
   callback: function() {},
 
@@ -20,7 +21,7 @@ var heatmap = {
     var that = this;
     var data = {
       endpoint: 'userinfo',
-      access_token: accessToken,
+      access_token: accessToken || this.accessToken
     };
     $.ajax({
       url: 'api.php',
@@ -41,6 +42,34 @@ var heatmap = {
       }
     });
     return apiResponse;
+  },
+
+  setAccountInfo: function(accessToken) {
+    var apiResponse = null,
+    that = this,
+    apiResponse = null,
+    data = {
+      endpoint: 'accounts',
+      access_token: accessToken || this.accessToken
+    };
+    $.ajax({
+      url: 'api.php',
+      data: data,
+      success: function(response) {
+        console.log(response);
+        if(200 == response.meta.code) {
+          var i;
+          for(i = 0; i < response.response.count; i++) {
+            var elem = response.response.data[i];
+            that.accounts[elem.name] = elem.id;
+          }
+        }
+      },
+      error: function(xhr, errorMsg, err) {
+        console.log(errorMsg);
+        console.log(err);
+      }
+    });
   },
 
   addRow: function(cellValues) {
@@ -70,15 +99,15 @@ var heatmap = {
     var container = d3.select('div#chart_container');
     var that = this;
     container
-      .selectAll('div.cell_white')
-      .data(this.allCellValues)
-      .style(
-        'background-color', 
-        function(cellValue) { 
-          var colour = that.getColour(cellValue, that.sumCells);
-          console.log(colour);
-          return colour; 
-        });
+    .selectAll('div.cell_white')
+    .data(this.allCellValues)
+    .style(
+      'background-color', 
+      function(cellValue) { 
+        var colour = that.getColour(cellValue, that.sumCells);
+        console.log(colour);
+        return colour; 
+      });
   },
 
   getColour: function(cellValue, sumCells) {
@@ -94,8 +123,8 @@ var heatmap = {
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
   },
 
-  getInsights: function(facetDefs, dateFrom, dateTo) {
-    if(!this.userID) {
+  getInsights: function(accountName, facetDefs, dateFrom, dateTo) {
+    if(!this.accounts[accountName]) {
       return false;
     }
     var data = {
@@ -104,7 +133,7 @@ var heatmap = {
       date_from: dateFrom,
       date_to: dateTo,
       access_token: this.accessToken,
-      user_id: this.userID
+      account_id: this.accounts[accountName]
     };
     console.log("Using data: ");
     console.log(data);
