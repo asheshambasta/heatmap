@@ -53,5 +53,16 @@ var heatmap = {
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
   },
 
-
+  drawFromDateObj: function(dateObj) {
+    for(date in dateObj) {
+      console.log("Adding row that looks like: ");
+      console.log(dateObj[date]);
+      //make an array out of the given date
+      var dateArr = [];
+      for(time in dateObj[date]) {
+        dateArr.push(dateObj[date][time]);
+      }
+      this.addRow(dateArr);
+    }
+  }
 }
