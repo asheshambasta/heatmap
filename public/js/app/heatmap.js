@@ -3,11 +3,13 @@ var heatmap = {
   allCellValues: [],
   maxCellValue: 0,
 
-  addRow: function(cellValues) {
-    var container = d3.select('div#chart_container');
-    var rows = container.selectAll('div.row');
-    var newRowID = "row_" + rows[0].length;
+  addRow: function(cellValues, date) {
+    var container = d3.select('div#chart_container'),
+      rows = container.selectAll('div.row'),
+      newRowID = "row_" + rows[0].length;
+
     container.append('div').classed('row', true).attr('id', newRowID);
+    date = date || '';
 
     //add cells to the new row
     var row = container.select('div#' + newRowID);
@@ -17,6 +19,7 @@ var heatmap = {
       this.maxCellValue = Math.max(this.maxCellValue, cellValues[i]);
       var cellID = "cell_" + newRowID + "_" + i;
       row.append('div').classed('cell_white', true).attr('id', cellID);
+      cellValues[i] = date + ' ' + i + ':00, ' + cellValues[i];
     }
     row.selectAll('div').data(cellValues).attr(
       'title', 
@@ -62,7 +65,7 @@ var heatmap = {
       for(time in dateObj[date]) {
         dateArr.push(dateObj[date][time]);
       }
-      this.addRow(dateArr);
+      this.addRow(dateArr, date);
     }
   }
 }
