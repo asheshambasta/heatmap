@@ -19,7 +19,7 @@ case 'SIGNUP':
   break;
 case 'SIGNIN':
   if ($output['value'] = $user->authenticate()) {
-    $_SESSION['user'] = array('username' => $username, 'auth' => TRUE);
+    $_SESSION['user'] = $user;
   }
   break;
 }
