@@ -1,5 +1,5 @@
 <?php
-require_once 'init.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'init.php';
 header('content-type: application/json;'); 
 $urlInfo = array(
 

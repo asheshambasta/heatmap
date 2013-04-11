@@ -15,6 +15,7 @@ require_once 'Riak/Bucket.php';
 require_once 'Riak/Object.php';
 require_once 'Riak/Utils.php';
 require_once 'Riak/StringIO.php';
+require_once 'User.php';
 //read main.ini and initialise global constants based on that.
 $mainINIPath = UNIVERSAL_DIR . DIRECTORY_SEPARATOR . 'config/main.ini';
 $config = parse_ini_file($mainINIPath, TRUE);
@@ -42,4 +43,5 @@ if($clearSession) {
   session_unset();
   session_start();
 }
+$riak = new Basho\Riak\Riak(RIAK_ADDR, RIAK_PORT);
 ?>
