@@ -82,7 +82,7 @@ if(!empty($cacheData->data)) {
     $i = 0;
     while($timeFrom <= $timeTo) {
       $date = date('Y-m-d', $timeFrom);
-      error_log("###Processing cache date " . $date);
+//      error_log("###Processing cache date " . $date);
       if(!isset($cacheArr[$date]) && !isset($times[$i])) {
         $times[$i] = array($date);
       } 
@@ -98,6 +98,9 @@ if(!empty($cacheData->data)) {
     $__GET = $_GET;
     $responseArr = array();
     foreach($times as $range) {
+      if($range[0] == $range[1]) {
+        continue;
+      }
       $__GET['date_from'] = $range[0];
       $__GET['date_to'] = $range[1];
       $request = array();
@@ -113,6 +116,8 @@ if(!empty($cacheData->data)) {
       $url .= "?" . $requestStr;
       error_log("###Intermediate req: " . $url);
       error_log("###times: " . json_encode($times));
+      $response = file_get_contents($url);
+      $responseArr = array_merge($responseArr, json_decode($response, TRUE));
     }
   }
 
@@ -130,7 +135,7 @@ if(!empty($cacheData->data)) {
       $facetDigest = md5(ifsetor($_GET, 'facetdefinitions', ''));
       $insightKey = $userID . $facetDigest . $endpoint;
       //create the cache key now
-      $curDate = date("Y/m/d");
+      $curDate = date("Y-m-d");
       //go through outputarray and put in all keys except for the current day
 
       $responseKeys = $responseArr['response'][0]['keys'];
@@ -142,14 +147,20 @@ if(!empty($cacheData->data)) {
           unset($responseData[$index]);
         }
       }
+
+      error_log("### Datetimes: " . json_encode($responseKeys));
       //      error_log("###" . json_encode($responseKeys));
 
-      //cache the rest to riak now
-      $_cache = array();
+  
+      $insightCacheObj = $bucket->get($insightKey);
+     //cache the rest to riak now
+      $_cache = !empty($insightCacheObj->data) ? $insightCacheObj->data[0] : array();
       foreach($responseKeys as $index => $dateTime) {
         $date = $dateTime['text'];
         $dateSplit = explode(" ", $date);
-        $day = $dateSplit[0];
+        $day = 
+          preg_replace("/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/", "$3-$2-$1", $dateSplit[0]);
+        error_log("### " . $dateSplit[0] . " - " . $day);
         $time = $dateSplit[1];
         if (!isset($_cache[$day])) {
           $_cache[$day] = array();
