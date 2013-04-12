@@ -21,7 +21,7 @@ $(document).ready(
     });
   }
 
-  $('#login').onclick(function(event) {
+  $('#login').click(function(event) {
     event.preventDefault();
     login();
   });

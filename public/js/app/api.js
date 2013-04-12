@@ -21,7 +21,7 @@ var api = {
       access_token: accessToken || this.accessToken
     };
     $.ajax({
-      url: 'api.php',
+      url: 'ajax/api.php',
       data: data,
       success: function(response) {
         console.log(response);
@@ -51,7 +51,7 @@ var api = {
     };
     $.ajax({
       async: false,
-      url: 'api.php',
+      url: 'ajax/api.php',
       data: data,
       success: function(response) {
         console.log(response);
@@ -88,7 +88,7 @@ var api = {
     console.log(data);
     $.ajax({
       async: false,
-      url: 'api.php',
+      url: 'ajax/api.php',
       data: data,
       success: function(response) {
         console.log(response);

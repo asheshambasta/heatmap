@@ -1,27 +1,33 @@
 <?php
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'init.php';
 header('content-type: application/json;'); 
-$urlInfo = array(
+
+$urlSpecs = array(
 
   'USERINFO'    => array(
 
-    'url'           => 'http://api.engagor.com/me', 
-    'cache'         => TRUE,
-    'cache_expire'  => 0),
+    'url'           =>  'http://api.engagor.com/me', 
+    'cache'         =>  TRUE,
+    'cache_expire'  =>  0),
 
   'ACCOUNTS'    => array(
-    'url'           => 'http://api.engagor.com/me/accounts',
-    'cache'         => FALSE,
-    'cache_expire'  => 0),
+
+    'url'           =>  'http://api.engagor.com/me/accounts',
+    'cache'         =>  FALSE,
+    'cache_expire'  =>  0),
 
   'INSIGHTS'    => array(
 
-    'url'           => 'http://api.engagor.com/:account_id/insights/facets',
-    'cache'         => FALSE,
-    'cache_expire'  => 0)
+    'url'           =>  'http://api.engagor.com/:account_id/insights/facets',
+    'replace_key'   =>  ':account_id',
+    'get_key'       =>  'account_id',
+    'cache'         =>  FALSE,
+    'cache_expire'  =>  0)
 
   );
-$endpoint = strtoupper($_REQUEST['endpoint']);
+
+$endpoint = strtoupper($_GET['endpoint']);
+$urlSpec = $urlSpecs[$endpoint];
 
 $bucketName = $_SESSION['access_token'];
 $bucket = $riak->bucket($bucketName);
@@ -34,20 +40,21 @@ if(!empty($cacheData->data)) {
 } else {
   //cache miss
   error_log("###CACHE MISS FOR: " . $bucketName . "/" . $endpoint);
-  $url = $urlInfo[$endpoint]['url'];
-  $toCache = $urlInfo[$endpoint]['cache'];
+  $url = $urlSpec['url'];
+  $toCache = $urlSpec['cache'];
 
-  if(isset($_REQUEST['account_id'])) {
-    $url = str_replace(':account_id', $_REQUEST['account_id'], $url);
+  if(isset($urlSpec['replace_key'])) {
+    $getKey = $urlSpec['get_key'];
+    $url = str_replace($urlSpec['replace_key'], $_GET[$getKey], $url);
   }
 
   $request = array();
-  $params = array_keys($_REQUEST);
+  $params = array_keys($_GET);
   foreach($params as $param) {
     if('endpoint' == $param) {
       continue;
     }
-    $request[] = $param . "=" . $_REQUEST[$param];
+    $request[] = $param . "=" . $_GET[$param];
   }
 
   $requestStr = implode('&', $request);
