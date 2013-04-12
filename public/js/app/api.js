@@ -75,15 +75,18 @@ var api = {
     if(!this.accounts[accountName]) {
       return false;
     }
+
     var data = {
-      endpoint: 'insights',
-      facetdefinitions: encodeURIComponent(JSON.stringify(facetDefs)),
-      date_from: dateFrom,
-      date_to: dateTo,
-      access_token: this.accessToken,
-      account_id: this.accounts[accountName]
-    },
+        endpoint: 'insights',
+        facetdefinitions: encodeURIComponent(JSON.stringify(facetDefs)),
+        date_from: dateFrom,
+        date_to: dateTo,
+        access_token: this.accessToken,
+        account_id: this.accounts[accountName],
+        user_id: this.userID
+      },
       that = this;
+
     console.log("Using data: ");
     console.log(data);
     $.ajax({

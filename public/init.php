@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('ETC/GMT');
 define('PUBLIC_DIR', __DIR__);
 define('UNIVERSAL_DIR', dirname(__DIR__));
 session_start();
@@ -8,7 +9,6 @@ set_include_path(
     array(
       get_include_path(), 
       dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app')));
-
 
 require_once 'Riak/Riak.php';
 require_once 'Riak/Bucket.php';
