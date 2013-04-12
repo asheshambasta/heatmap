@@ -66,6 +66,7 @@ if(!empty($cacheData->data)) {
     $response = file_get_contents($url);
     $responseArr = json_decode($response, TRUE);
   } else {
+
     //call api differently for INSIGHTS, process date ranges based on cache first.
     $userID = ifsetor($_GET, 'user_id', '');
     $facetDigest = md5(ifsetor($_GET, 'facetdefinitions', ''));
@@ -80,9 +81,10 @@ if(!empty($cacheData->data)) {
     $times = array();
     $dayLen = 3600 * 24;
     $i = 0;
+
+    $responseArr = array('keys' => array(), 'values' => array());
     while($timeFrom <= $timeTo) {
       $date = date('Y-m-d', $timeFrom);
-//      error_log("###Processing cache date " . $date);
       if(!isset($cacheArr[$date]) && !isset($times[$i])) {
         $times[$i] = array($date);
       } 
@@ -92,11 +94,18 @@ if(!empty($cacheData->data)) {
       } 
 
       $i += isset($cacheArr[$date]) ? 1 : 0;
+
+      if(isset($cacheArr[$date])) {
+        foreach($cacheArr[$date] as $time => $value) {
+          $responseArr['keys'][] = $date . " " . $time;
+          $responseArr['values'][] = $value;
+        }
+      }
       $timeFrom += $dayLen;
     }
 
     $__GET = $_GET;
-    $responseArr = array();
+
     foreach($times as $range) {
       if($range[0] == $range[1]) {
         continue;
@@ -117,7 +126,15 @@ if(!empty($cacheData->data)) {
       error_log("###Intermediate req: " . $url);
       error_log("###times: " . json_encode($times));
       $response = file_get_contents($url);
-      $responseArr = array_merge($responseArr, json_decode($response, TRUE));
+      $_response = json_decode($response, TRUE);
+      if(!empty($_response['response'])) {
+        $i = 0;
+        foreach($_response['response'][0]['keys'] as $key) {
+          $responseArr['keys'][] = $key;
+          $responseArr['values'][] = $_response['response'][0]['data'][0][$i];
+          $i++;
+        }
+      }
     }
   }
 
@@ -131,6 +148,7 @@ if(!empty($cacheData->data)) {
     //the assumption is that the grouping is hourly only
     switch($endpoint) {
     case 'INSIGHTS':
+
       $userID = ifsetor($_GET, 'user_id', '');
       $facetDigest = md5(ifsetor($_GET, 'facetdefinitions', ''));
       $insightKey = $userID . $facetDigest . $endpoint;
@@ -138,11 +156,11 @@ if(!empty($cacheData->data)) {
       $curDate = date("Y-m-d");
       //go through outputarray and put in all keys except for the current day
 
-      $responseKeys = $responseArr['response'][0]['keys'];
-      $responseData = $responseArr['response'][0]['data'][0];
+      $responseKeys = $responseArr['keys'];
+      $responseData = $responseArr['values'];
 
       foreach($responseKeys as $index => $dateTime) {
-        if(FALSE !== strpos($dateTime['text'], $curDate)) {
+        if(FALSE !== strpos($dateTime, $curDate)) {
           unset($responseKeys[$index]);
           unset($responseData[$index]);
         }
@@ -150,13 +168,12 @@ if(!empty($cacheData->data)) {
 
       error_log("### Datetimes: " . json_encode($responseKeys));
       //      error_log("###" . json_encode($responseKeys));
-
   
       $insightCacheObj = $bucket->get($insightKey);
      //cache the rest to riak now
       $_cache = !empty($insightCacheObj->data) ? $insightCacheObj->data[0] : array();
       foreach($responseKeys as $index => $dateTime) {
-        $date = $dateTime['text'];
+        $date = $dateTime;
         $dateSplit = explode(" ", $date);
         $day = 
           preg_replace("/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/", "$3-$2-$1", $dateSplit[0]);
@@ -169,11 +186,14 @@ if(!empty($cacheData->data)) {
       }
       $cacheData = $bucket->newObject($insightKey, array($_cache));
       error_log("### setting cache for insights: " . $insightKey . json_encode($_cache));
+      $response = json_encode($_cache);
       break;
+
     default: 
       $cacheData = $bucket->newObject($endpoint, array($response));
       break;
     }
+
     $cacheData->store();
   }
   //FIXME add error handling stuff here as well
