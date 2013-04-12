@@ -130,11 +130,13 @@ if(!empty($cacheData->data)) {
       if(!empty($_response['response'])) {
         $i = 0;
         foreach($_response['response'][0]['keys'] as $key) {
-          $responseArr['keys'][] = $key;
+          $timestamp = $key['name'];
+          $responseArr['keys'][] = date('Y-m-d H:i', $timestamp);
           $responseArr['values'][] = $_response['response'][0]['data'][0][$i];
           $i++;
         }
       }
+      error_log("###Response keys: " . json_encode($responseArr['keys']));
     }
   }
 
