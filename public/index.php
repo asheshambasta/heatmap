@@ -26,8 +26,6 @@ if(!isset($_SESSION['access_token'])) {
   <script src="js/app/ready.js"></script>
   <div id="data_holder" 
     data-access_token="<?php echo $_SESSION['access_token']; ?>"
-    data-date_from="<?php echo $_REQUEST['date_from']; ?>"
-    data-date_to="<?php echo $_REQUEST['date_to']; ?>"
 ></div>
 <div id="chart_container">
 </div>

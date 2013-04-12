@@ -13,7 +13,7 @@ $urlSpecs = array(
   'ACCOUNTS'    => array(
 
     'url'           =>  'http://api.engagor.com/me/accounts',
-    'cache'         =>  FALSE,
+    'cache'         =>  TRUE,
     'cache_expire'  =>  0),
 
   'INSIGHTS'    => array(
@@ -35,7 +35,7 @@ $cacheData = $bucket->get($endpoint);
 
 if(!empty($cacheData->data)) {
   //cache hit
-  $output = stripslashes($cacheData->data[0]); 
+  $output = $cacheData->data[0]; 
   error_log("###CACHE HIT FOR: " . $bucketName . "/" . $endpoint);
 } else {
   //cache miss

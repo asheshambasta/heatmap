@@ -1,21 +1,27 @@
 var heatmap = {
   sumCells: 0,
   allCellValues: [],
-  maxCellValue: 0,
+  maxCellValue: null,
+  numCells: 0,
 
   addRow: function(cellValues, date) {
     var container = d3.select('div#chart_container'),
       rows = container.selectAll('div.row'),
-      newRowID = "row_" + rows[0].length;
+      newRowID = "row_" + rows[0].length,
+      row,
+      i;
+
+    this.numCells += cellValues.length;
 
     container.append('div').classed('row', true).attr('id', newRowID);
+    row = container.select('div#' + newRowID);
     date = date || '';
 
     //add cells to the new row
-    var row = container.select('div#' + newRowID);
-    for(var i = 0; i < cellValues.length; i++) {
+    for(i = 0; i < cellValues.length; i++) {
       this.sumCells += cellValues[i];
       this.allCellValues.push(cellValues[i]);
+      this.maxCellValue = typeof this.maxCellValue !== "number" ? cellValues[i] : this.maxCellValue;
       this.maxCellValue = Math.max(this.maxCellValue, cellValues[i]);
       var cellID = "cell_" + newRowID + "_" + i;
       row.append('div').classed('cell_white', true).attr('id', cellID);
@@ -56,7 +62,7 @@ var heatmap = {
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
   },
 
-  drawFromDateObj: function(dateObj) {
+  drawFromDateObj: function(dateObj, paint) {
     for(date in dateObj) {
       console.log("Adding row that looks like: ");
       console.log(dateObj[date]);
@@ -66,6 +72,9 @@ var heatmap = {
         dateArr.push(dateObj[date][time]);
       }
       this.addRow(dateArr, date);
+    }
+    if(true === paint) {
+      this.paintGrid();
     }
   }
 }
