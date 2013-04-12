@@ -186,7 +186,7 @@ if(!empty($cacheData->data)) {
         }
         $_cache[$day][$time] = $responseData[$index];
       }
-      $cacheData = $bucket->newObject($insightKey, array($_cache));
+      //normalize cache, don't leave gaps
       error_log("### setting cache for insights: " . $insightKey . json_encode($_cache));
       $_response = array();
       $timeFrom = strtotime($_GET['date_from']);
@@ -194,9 +194,13 @@ if(!empty($cacheData->data)) {
       $dayLen = 24 * 3600;
       while($timeFrom < $timeTo) {
         $key = date('Y-m-d', $timeFrom);
+        if(!isset($_cache[$key])) {
+          $_cache[$key] = array();
+        }
         $_response[$key] = $_cache[$key];
         $timeFrom += $dayLen;
       }
+      $cacheData = $bucket->newObject($insightKey, array($_cache));
       $response = json_encode($_response);
       break;
 
