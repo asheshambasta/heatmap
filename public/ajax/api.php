@@ -48,21 +48,73 @@ if(!empty($cacheData->data)) {
     $url = str_replace($urlSpec['replace_key'], $_GET[$getKey], $url);
   }
 
-  $request = array();
-  $params = array_keys($_GET);
-  foreach($params as $param) {
-    if('endpoint' == $param) {
-      continue;
+  if('INSIGHTS' !== $endpoint) {
+    //make an ordinary request to api
+    $request = array();
+    $params = array_keys($_GET);
+    foreach($params as $param) {
+      if('endpoint' == $param) {
+        continue;
+      }
+      $request[] = $param . "=" . $_GET[$param];
     }
-    $request[] = $param . "=" . $_GET[$param];
+
+    $requestStr = implode('&', $request);
+    $url .= "?" . $requestStr;
+    error_log("###" . $url);
+
+    $response = file_get_contents($url);
+    $responseArr = json_decode($response, TRUE);
+  } else {
+    //call api differently for INSIGHTS, process date ranges based on cache first.
+    $userID = ifsetor($_GET, 'user_id', '');
+    $facetDigest = md5(ifsetor($_GET, 'facetdefinitions', ''));
+    $insightKey = $userID . $facetDigest . $endpoint;
+    $insightCacheObj = $bucket->get($insightKey);
+    $cacheArr = $insightCacheObj->data[0];
+    error_log("###cached dates: " . json_encode(array_keys($cacheArr)));
+    $dateFrom = $_GET['date_from'];
+    $dateTo = $_GET['date_to'];
+    $timeFrom = strtotime($dateFrom);
+    $timeTo = strtotime($dateTo);
+    $times = array();
+    $dayLen = 3600 * 24;
+    $i = 0;
+    while($timeFrom <= $timeTo) {
+      $date = date('Y-m-d', $timeFrom);
+      error_log("###Processing cache date " . $date);
+      if(!isset($cacheArr[$date]) && !isset($times[$i])) {
+        $times[$i] = array($date);
+      } 
+      
+      if (isset($times[$i])) {
+        $times[$i][1] = $date;
+      } 
+
+      $i += isset($cacheArr[$date]) ? 1 : 0;
+      $timeFrom += $dayLen;
+    }
+
+    $__GET = $_GET;
+    $responseArr = array();
+    foreach($times as $range) {
+      $__GET['date_from'] = $range[0];
+      $__GET['date_to'] = $range[1];
+      $request = array();
+      $params = array_keys($_GET);
+      foreach($params as $param) {
+        if('endpoint' == $param) {
+          continue;
+        }
+        $request[] = $param . "=" . $__GET[$param];
+      }
+
+      $requestStr = implode('&', $request);
+      $url .= "?" . $requestStr;
+      error_log("###Intermediate req: " . $url);
+      error_log("###times: " . json_encode($times));
+    }
   }
-
-  $requestStr = implode('&', $request);
-  $url .= "?" . $requestStr;
-  error_log("###" . $url);
-
-  $response = file_get_contents($url);
-  $responseArr = json_decode($response, TRUE);
 
   //Cache only when there's no error, no point otherwise
   $toCache = $toCache && !isset($responseArr['error']);
@@ -78,7 +130,7 @@ if(!empty($cacheData->data)) {
       $facetDigest = md5(ifsetor($_GET, 'facetdefinitions', ''));
       $insightKey = $userID . $facetDigest . $endpoint;
       //create the cache key now
-      $curDate = date("d/m/Y");
+      $curDate = date("Y/m/d");
       //go through outputarray and put in all keys except for the current day
 
       $responseKeys = $responseArr['response'][0]['keys'];
@@ -90,13 +142,19 @@ if(!empty($cacheData->data)) {
           unset($responseData[$index]);
         }
       }
-//      error_log("###" . json_encode($responseKeys));
+      //      error_log("###" . json_encode($responseKeys));
 
       //cache the rest to riak now
       $_cache = array();
       foreach($responseKeys as $index => $dateTime) {
         $date = $dateTime['text'];
-        $_cache[$date] = $responseData[$index];
+        $dateSplit = explode(" ", $date);
+        $day = $dateSplit[0];
+        $time = $dateSplit[1];
+        if (!isset($_cache[$day])) {
+          $_cache[$day] = array();
+        }
+        $_cache[$day][$time] = $responseData[$index];
       }
       $cacheData = $bucket->newObject($insightKey, array($_cache));
       error_log("### setting cache for insights: " . $insightKey . json_encode($_cache));
