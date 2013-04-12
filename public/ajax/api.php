@@ -21,7 +21,7 @@ $urlSpecs = array(
     'url'           =>  'http://api.engagor.com/:account_id/insights/facets',
     'replace_key'   =>  ':account_id',
     'get_key'       =>  'account_id',
-    'cache'         =>  FALSE,
+    'cache'         =>  TRUE,
     'cache_expire'  =>  0)
 
   );
@@ -62,7 +62,7 @@ if(!empty($cacheData->data)) {
   error_log("###" . $url);
 
   $response = file_get_contents($url);
-  $responseArr = json_decode($output, TRUE);
+  $responseArr = json_decode($response, TRUE);
 
   //Cache only when there's no error, no point otherwise
   $toCache = $toCache && !isset($responseArr['error']);
@@ -90,15 +90,16 @@ if(!empty($cacheData->data)) {
           unset($responseData[$index]);
         }
       }
+//      error_log("###" . json_encode($responseKeys));
 
       //cache the rest to riak now
       $_cache = array();
       foreach($responseKeys as $index => $dateTime) {
         $date = $dateTime['text'];
-        $cache[$date] = $responseData[$index];
+        $_cache[$date] = $responseData[$index];
       }
       $cacheData = $bucket->newObject($insightKey, array($_cache));
-      error_log("### setting cache for insights: " . json_encode($_cache));
+      error_log("### setting cache for insights: " . $insightKey . json_encode($_cache));
       break;
     default: 
       $cacheData = $bucket->newObject($endpoint, array($response));
