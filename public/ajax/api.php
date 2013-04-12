@@ -35,7 +35,7 @@ $cacheData = $bucket->get($endpoint);
 
 if(!empty($cacheData->data)) {
   //cache hit
-  $output = $cacheData->data[0]; 
+  $response = $cacheData->data[0]; 
   error_log("###CACHE HIT FOR: " . $bucketName . "/" . $endpoint);
 } else {
   //cache miss
@@ -61,15 +61,52 @@ if(!empty($cacheData->data)) {
   $url .= "?" . $requestStr;
   error_log("###" . $url);
 
-  $output = file_get_contents($url);
-  $outputArr = json_decode($output, TRUE);
+  $response = file_get_contents($url);
+  $responseArr = json_decode($output, TRUE);
 
   //Cache only when there's no error, no point otherwise
-  if(!isset($outputArr['error']) && $toCache) {
-    $cacheData = $bucket->newObject($endpoint, array($output));
+  $toCache = $toCache && !isset($responseArr['error']);
+
+  if($toCache) {
+    //caching will be different for insights now
+    //we'll cache everything except the current day.
+    //parsing will also need to be done accordingly
+    //the assumption is that the grouping is hourly only
+    switch($endpoint) {
+    case 'INSIGHTS':
+      $userID = ifsetor($_GET, 'user_id', '');
+      $facetDigest = md5(ifsetor($_GET, 'facetdefinitions', ''));
+      $insightKey = $userID . $facetDigest . $endpoint;
+      //create the cache key now
+      $curDate = date("d/m/Y");
+      //go through outputarray and put in all keys except for the current day
+
+      $responseKeys = $responseArr['response'][0]['keys'];
+      $responseData = $responseArr['response'][0]['data'][0];
+
+      foreach($responseKeys as $index => $dateTime) {
+        if(FALSE !== strpos($dateTime['text'], $curDate)) {
+          unset($responseKeys[$index]);
+          unset($responseData[$index]);
+        }
+      }
+
+      //cache the rest to riak now
+      $_cache = array();
+      foreach($responseKeys as $index => $dateTime) {
+        $date = $dateTime['text'];
+        $cache[$date] = $responseData[$index];
+      }
+      $cacheData = $bucket->newObject($insightKey, array($_cache));
+      error_log("### setting cache for insights: " . json_encode($_cache));
+      break;
+    default: 
+      $cacheData = $bucket->newObject($endpoint, array($response));
+      break;
+    }
     $cacheData->store();
   }
   //FIXME add error handling stuff here as well
 }
-echo $output;
+echo $response;
 ?>
