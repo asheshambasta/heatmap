@@ -3,10 +3,9 @@
  */
 $(document).ready(
   function() {
-  var dataHolder  = $("#data_holder");
 
   if (typeof API !== "undefined") {
-    var api = new API($(dataHolder).data('access_token'));
+    var api = new API($('div#data_holder').data('access_token'));
     api.setUserID(function(apiResponse) {
       api.setAccountInfo(function(accounts) {
         for(acName in accounts) {
@@ -33,14 +32,14 @@ $(document).ready(
       }
       console.log({account: account, facetdefinitions: facetdefs, date_from: dateFrom, date_to: dateTo});
 
-      $('div#chart_container').fadeOut('fast', function() {
-        $(this).empty();
+      var chartContainerStr = 'div#chart_container';
+      $(chartContainerStr).fadeOut('fast', function() {
         //draw the grid here
         api.getInsights(account, facetdefs, dateFrom, dateTo, function(response) {
           api.setInsightData(response, true); 
-          heatmap.drawFromDateObj(api.getInsightData(), true);
+          var heatMap  = new HeatMap(chartContainerStr, api.getInsightData(), true);
         });
-      $('div#chart_container').fadeIn('slow');
+      $(chartContainerStr).fadeIn('slow');
       });
 });
 });
