@@ -31,7 +31,7 @@ if(!isset($_SESSION['access_token'])) {
   <div id="chart_container">
   </div>
   <div id="form">
-    <input type="text" id="account" placeholder="Account"/><br>
+    <select id="account" placeholder="Account"/><br>
     <input type="text" id="facetdefinitions" placeholder="Facetdefinitions"/><br>
     <input type="text" id="date_from" placeholder="Date from"/><br>
     <input type="text" id="date_to" placeholder="Date to"/><br>

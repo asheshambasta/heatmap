@@ -11,7 +11,12 @@ $(document).ready(
   if (typeof api !== "undefined") {
     api.accessToken = $(dataHolder).data('access_token');
     api.setUserID(null, function(apiResponse) {
-      api.setAccountInfo();
+      api.setAccountInfo(null, function() {
+        for(acName in api.accounts) {
+          var opt = new Option(acName, acName);
+          $("select#account").append(opt);
+        }
+      });
     });
   }
 
@@ -32,7 +37,7 @@ $(document).ready(
   $('input[type="submit"]').click(function(event) {
     event.preventDefault();
     //gather data from all the input fields and submit
-    var account = $('input[placeholder="Account"]').val(),
+    var account = $('select#account').val(),
       facetdefs = JSON.parse($('input[placeholder="Facetdefinitions"]').val()),
       dateFrom = $('input[placeholder="Date from"]').val(),
       dateTo = $('input[placeholder="Date to"]').val(),

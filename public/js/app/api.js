@@ -50,7 +50,7 @@ var api = {
    * Set the account info for the given userID
    * @param {String}  [accessToken = this.accessToken] Access token for API calls
    */
-  setAccountInfo: function(accessToken) {
+  setAccountInfo: function(accessToken, callback) {
     var apiResponse = null,
     that = this,
     apiResponse = null,
@@ -69,6 +69,7 @@ var api = {
             var elem = response.response.data[i];
             that.accounts[elem.name] = elem.id;
           }
+          callback();
         }
       },
       error: function(xhr, errorMsg, err) {

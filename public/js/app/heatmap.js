@@ -67,9 +67,9 @@ var heatmap = {
   drawFromDateObj: function(dateObj, paint) {
 
     this.sumCells = 0,
-    allCellValues = [],
-    maxCellValue = null,
-    numCells = 0;
+    this.allCellValues = [],
+    this.maxCellValue = null,
+    this.numCells = 0;
 
     for(date in dateObj) {
       console.log("Adding row that looks like: ");
