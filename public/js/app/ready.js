@@ -3,35 +3,19 @@
  */
 $(document).ready(
   function() {
-  var 
-  dataHolder  = $("#data_holder"),
-  dateFrom    = $(dataHolder).data('date_from'),
-  dateTo      = $(dataHolder).data('date_to');
+  var dataHolder  = $("#data_holder");
 
-  if (typeof api !== "undefined") {
-    api.accessToken = $(dataHolder).data('access_token');
-    api.setUserID(null, function(apiResponse) {
-      api.setAccountInfo(null, function() {
-        for(acName in api.accounts) {
+  if (typeof API !== "undefined") {
+    var api = new API($(dataHolder).data('access_token'));
+    api.setUserID(function(apiResponse) {
+      api.setAccountInfo(function(accounts) {
+        for(acName in accounts) {
           var opt = new Option(acName, acName);
           $("select#account").append(opt);
         }
       });
     });
   }
-
-  $('#login').click(function(event) {
-    event.preventDefault();
-    login();
-  });
-
-  login = function () {
-    var username = $("#username").value();
-    var password = $("#password").value();
-    var data = {username: username, password: password};
-    console.log(data);
-  };
-
 
   //get the form ready.
   $('input[type="submit"]').click(function(event) {
@@ -54,7 +38,7 @@ $(document).ready(
         //draw the grid here
         api.getInsights(account, facetdefs, dateFrom, dateTo, function(response) {
           api.setInsightData(response, true); 
-          heatmap.drawFromDateObj(api.insightData, true);
+          heatmap.drawFromDateObj(api.getInsightData(), true);
         });
       $('div#chart_container').fadeIn('slow');
       });
