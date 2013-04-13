@@ -55,13 +55,14 @@ var heatmap = {
   },
 
   getColour: function(cellValue, sumCells) {
-    var R, G, B, A;
-    R = 255;
+    var G, A, 
+      side = (cellValue > this.avg),
+      diffFromMax = this.maxCellValue - cellValue,
+      diffFrac = diffFromMax/(this.maxCellValue ? this.maxCellValue : 1),
+      R = side ? 255 : Math.round(255 * diffFrac), 
+      B = side ? Math.round(255 * diffFrac) : 255;
     //see how close it is to the max cell value
-    var diffFromMax = this.maxCellValue - cellValue;
     //the smaller diffFromMax, the redder it should be.
-    var diffFrac = diffFromMax/(this.maxCellValue ? this.maxCellValue : 1);
-    B = Math.round(255 * diffFrac);
     G = Math.round(100 * diffFrac);
     A = 0.05 + cellValue/this.maxCellValue * 0.95;
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
