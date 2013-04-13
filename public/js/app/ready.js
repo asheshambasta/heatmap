@@ -10,7 +10,7 @@ $(document).ready(
 
   if (typeof api !== "undefined") {
     api.accessToken = $(dataHolder).data('access_token');
-    api.setUserID();
+    api.setUserID(null, function(apiResponse) {console.log(apiResponse);});
     api.setAccountInfo(null, function() {
       api.getInsights(
         'Zomato.com', 

@@ -39,7 +39,6 @@ if(!empty($cacheData->data)) {
   error_log("###CACHE HIT FOR: " . $bucketName . "/" . $endpoint);
 } else {
   //cache miss
-  error_log("###CACHE MISS FOR: " . $bucketName . "/" . $endpoint);
   $url = $urlSpec['url'];
   $toCache = $urlSpec['cache'];
 
@@ -50,6 +49,7 @@ if(!empty($cacheData->data)) {
 
   if('INSIGHTS' !== $endpoint) {
     //make an ordinary request to api
+    error_log("###CACHE MISS FOR: " . $bucketName . "/" . $endpoint);
     $request = array();
     $params = array_keys($_GET);
     foreach($params as $param) {
@@ -121,7 +121,8 @@ if(!empty($cacheData->data)) {
       }
 
       $requestStr = implode('&', $request);
-      $url .= "?" . $requestStr;
+      $url = $urlSpec['url'] . "?" . $requestStr;
+      error_log("###Making req: " . $url);
       $response = file_get_contents($url);
       $_response = json_decode($response, TRUE);
 

@@ -12,19 +12,21 @@ var api = {
    * Set the user id from API
    * @param   String  accessToken The access token for API calls
    */
-  setUserID: function(accessToken) {
+  setUserID: function(accessToken, callback) {
     //make ajax call to API
-    var apiResponse = null;
-    var that = this;
-    var data = {
-      endpoint: 'userinfo',
-      access_token: accessToken || this.accessToken
-    };
+    var apiResponse,
+      that = this,
+      data = {
+        endpoint: 'userinfo',
+        access_token: accessToken || this.accessToken
+      };
+
+    //make synchronous ajax call to our mighty api.php script
     $.ajax({
       url: 'ajax/api.php',
+      async: false,
       data: data,
       success: function(response) {
-        console.log(response);
         apiResponse = response;
         if(200 === response.meta.code) {
           that.userID        = response.response.id;
@@ -38,7 +40,9 @@ var api = {
         console.log(err);
       }
     });
-    return apiResponse;
+    return 
+      typeof callback == "undefined" ? null : callback(apiResponse), 
+      apiResponse;
   },
 
   setAccountInfo: function(accessToken) {
