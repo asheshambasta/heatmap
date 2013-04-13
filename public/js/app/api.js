@@ -107,6 +107,7 @@ var API = function(accessToken) {
           }
         }
       });
+      return this;
     },
 
     setInsightData: function(response) {
@@ -148,10 +149,12 @@ var API = function(accessToken) {
           insightData[date][time] = response[date][time];
         }
       }
+      return this;
     },
+
     getInsightData: function() {
       return insightData;
     }
-  }
+  };
   return api;
 };

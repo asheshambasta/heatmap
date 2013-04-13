@@ -40,6 +40,7 @@ var HeatMap = function(holder, dateObj, paint) {
         });
 
         avg = sumCells / allCellValues.length;
+        return this;
     },
 
     paintGrid: function() {
@@ -56,6 +57,7 @@ var HeatMap = function(holder, dateObj, paint) {
           console.log(cellValue + ':' + colour);
           return colour; 
         });
+        return this;
     },
 
     getColour: function(cellValue, sumCells) {
@@ -92,8 +94,9 @@ var HeatMap = function(holder, dateObj, paint) {
       if(true === paint) {
         this.paintGrid();
       }
+      return this;
     }
-  }
+  };
 
   if (dateObj) {
     heatmap.drawFromDateObj(dateObj, paint || false);
