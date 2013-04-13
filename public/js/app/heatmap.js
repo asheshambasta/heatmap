@@ -21,8 +21,10 @@ var heatmap = {
     for(i = 0; i < cellValues.length; i++) {
       this.sumCells += cellValues[i];
       this.allCellValues.push(cellValues[i]);
-      this.maxCellValue = typeof this.maxCellValue !== "number" ? cellValues[i] : this.maxCellValue;
-      this.maxCellValue = Math.max(this.maxCellValue, cellValues[i]);
+      this.maxCellValue = 
+        typeof this.maxCellValue !== "number" ? 
+          cellValues[i] : Math.max(this.maxCellValue, cellValues[i]);
+
       var cellID = "cell_" + newRowID + "_" + i;
       row.append('div').classed('cell_white', true).attr('id', cellID);
       cellValues[i] = date + ' ' + i + ':00, ' + cellValues[i];
@@ -44,7 +46,7 @@ var heatmap = {
       'background-color', 
       function(cellValue) { 
         var colour = that.getColour(cellValue, that.sumCells);
-        console.log(colour);
+        console.log(cellValue + ':' + colour);
         return colour; 
       });
   },
@@ -58,11 +60,17 @@ var heatmap = {
     var diffFrac = diffFromMax/(this.maxCellValue ? this.maxCellValue : 1);
     B = Math.round(255 * diffFrac);
     G = Math.round(100 * diffFrac);
-    A = 0.05 + cellValue/this.maxCellValue;
+    A = 0.05 + cellValue/this.maxCellValue * 0.95;
     return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
   },
 
   drawFromDateObj: function(dateObj, paint) {
+
+    this.sumCells = 0,
+    allCellValues = [],
+    maxCellValue = null,
+    numCells = 0;
+
     for(date in dateObj) {
       console.log("Adding row that looks like: ");
       console.log(dateObj[date]);

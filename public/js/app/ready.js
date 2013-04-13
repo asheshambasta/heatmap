@@ -10,14 +10,8 @@ $(document).ready(
 
   if (typeof api !== "undefined") {
     api.accessToken = $(dataHolder).data('access_token');
-    api.setUserID(null, function(apiResponse) {console.log(apiResponse);});
-    api.setAccountInfo(null, function() {
-      api.getInsights(
-        'Zomato.com', 
-        [{"key":{"field":"date.added","grouping":"hour"},"value":null,"segmentation":{"field":"custom","field_values":{"Social":"source:social","News":"source:news","Blogs":"source:blogs","Forums":"source:forums"}},"type":"mentions"}],
-        dateFrom, 
-        dateTo
-      );
+    api.setUserID(null, function(apiResponse) {
+      api.setAccountInfo();
     });
   }
 
@@ -32,4 +26,32 @@ $(document).ready(
     var data = {username: username, password: password};
     console.log(data);
   };
+
+
+  //get the form ready.
+  $('input[type="submit"]').click(function(event) {
+    event.preventDefault();
+    //gather data from all the input fields and submit
+    var account = $('input[placeholder="Account"]').val(),
+      facetdefs = JSON.parse($('input[placeholder="Facetdefinitions"]').val()),
+      dateFrom = $('input[placeholder="Date from"]').val(),
+      dateTo = $('input[placeholder="Date to"]').val(),
+      goAhead = account && facetdefs && dateFrom && dateTo;
+
+      if(!goAhead) {
+        alert("Are you sure all fields are set?");
+        return;
+      }
+      console.log({account: account, facetdefinitions: facetdefs, date_from: dateFrom, date_to: dateTo});
+
+      $('div#chart_container').fadeOut(200, function() {
+        $(this).empty();
+        //draw the grid here
+        api.getInsights(account, facetdefs, dateFrom, dateTo, function(response) {
+          api.setInsightData(response, true); 
+          heatmap.drawFromDateObj(api.insightData, true);
+        });
+      $('div#chart_container').fadeIn();
+      });
+});
 });

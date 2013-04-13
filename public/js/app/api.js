@@ -10,7 +10,8 @@ var api = {
 
   /**
    * Set the user id from API
-   * @param   String  accessToken The access token for API calls
+   * @param {String}    [accessToken = this.accessToken]    The access token for API calls
+   * @param {function}  [callback]                          The callback.
    */
   setUserID: function(accessToken, callback) {
     //make ajax call to API
@@ -24,7 +25,6 @@ var api = {
     //make synchronous ajax call to our mighty api.php script
     $.ajax({
       url: 'ajax/api.php',
-      async: false,
       data: data,
       success: function(response) {
         apiResponse = response;
@@ -34,17 +34,22 @@ var api = {
           that.userName      = response.response.name;
           that.userEmail     = response.response.email;
         }
+        if(typeof callback == "function") {
+          callback(apiResponse);
+        }
       },
       error: function(xhr, errorMsg, err) {
         console.log(errorMsg);
         console.log(err);
       }
     });
-    return 
-      typeof callback == "undefined" ? null : callback(apiResponse), 
-      apiResponse;
+    return apiResponse;
   },
 
+  /**
+   * Set the account info for the given userID
+   * @param {String}  [accessToken = this.accessToken] Access token for API calls
+   */
   setAccountInfo: function(accessToken) {
     var apiResponse = null,
     that = this,
@@ -54,7 +59,6 @@ var api = {
       access_token: accessToken || this.accessToken
     };
     $.ajax({
-      async: false,
       url: 'ajax/api.php',
       data: data,
       success: function(response) {
@@ -74,7 +78,7 @@ var api = {
     });
   },
 
-  getInsights: function(accountName, facetDefs, dateFrom, dateTo) {
+  getInsights: function(accountName, facetDefs, dateFrom, dateTo, callback) {
 
     if(!this.accounts[accountName]) {
       return false;
@@ -100,25 +104,18 @@ var api = {
       success: function(response) {
         console.log(response);
         that.apiResponse = response;
+        if ("function" == typeof callback) {
+          callback(that.apiResponse);
+        }
       }
     });
   },
 
   setInsightData: function(response) {
-    if(!response || 200 !== response.meta.code) {
-      return false;
-    }
-    var keys = response.response[0].keys,
-      data = response.response[0].data[0],
-      i;
 
     this.insightData = {};
 
-    for(i = 0; i < keys.length; i++) {
-      var key = keys[i]['text'],
-        keySplit = key.split(" "),
-        date = keySplit[0],
-        time = keySplit[1];
+    for(date in response) {
 
       if(!this.insightData[date]) {
         this.insightData[date] = {
@@ -149,7 +146,9 @@ var api = {
         };
       }
 
-      this.insightData[date][time] = data[i];
+      for(time in response[date]) {
+        this.insightData[date][time] = response[date][time];
+      }
     }
   }
 }

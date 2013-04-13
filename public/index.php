@@ -25,9 +25,17 @@ if(!isset($_SESSION['access_token'])) {
   <script src="js/app/api.js"></script>
   <script src="js/app/ready.js"></script>
   <div id="data_holder" 
-    data-access_token="<?php echo $_SESSION['access_token']; ?>"
-></div>
-<div id="chart_container">
-</div>
+    data-access_token="<?php echo $_SESSION['access_token']; ?>">
+  </div>
+
+  <div id="chart_container">
+  </div>
+  <div id="form">
+    <input type="text" id="account" placeholder="Account"/><br>
+    <input type="text" id="facetdefinitions" placeholder="Facetdefinitions"/><br>
+    <input type="text" id="date_from" placeholder="Date from"/><br>
+    <input type="text" id="date_to" placeholder="Date to"/><br>
+<input type="submit" value="Draw"/>
+  </div>
 </body>
 </html>
