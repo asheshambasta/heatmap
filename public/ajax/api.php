@@ -44,6 +44,7 @@ if(!empty($cacheData->data)) {
 
   if(isset($urlSpec['replace_key'])) {
     $getKey = $urlSpec['get_key'];
+    $replaceKey = $urlSpec['replace_key'];
     $url = str_replace($urlSpec['replace_key'], $_GET[$getKey], $url);
   }
 
@@ -121,9 +122,9 @@ if(!empty($cacheData->data)) {
       }
 
       $requestStr = implode('&', $request);
-      $url = $urlSpec['url'] . "?" . $requestStr;
-      error_log("###Making req: " . $url);
-      $response = file_get_contents($url);
+      $_url = $url . "?" . $requestStr;
+      error_log("###Making req: " . $_url);
+      $response = file_get_contents($_url);
       $_response = json_decode($response, TRUE);
 
       if(!empty($_response['response'])) {

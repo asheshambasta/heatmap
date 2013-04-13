@@ -70,7 +70,7 @@ var HeatMap = function(holder, dateObj, paint) {
       //see how close it is to the max cell value
       //the smaller diffFromMax, the redder it should be.
       G = Math.round(100 * diffFrac);
-      A = 0.05 + cellValue/maxCellValue * 0.95;
+      A = 0.15 + cellValue/maxCellValue * 0.85;
       return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
     },
 
