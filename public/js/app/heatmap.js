@@ -3,6 +3,7 @@ var heatmap = {
   allCellValues: [],
   maxCellValue: null,
   numCells: 0,
+  avg: 0,
 
   addRow: function(cellValues, date) {
     var container = d3.select('div#chart_container'),
@@ -34,6 +35,8 @@ var heatmap = {
       function(cellValue) {
         return cellValue;
       });
+
+      this.avg = this.sumCells / this.allCellValues.length;
   },
 
   paintGrid: function() {

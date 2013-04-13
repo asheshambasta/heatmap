@@ -49,14 +49,14 @@ $(document).ready(
       }
       console.log({account: account, facetdefinitions: facetdefs, date_from: dateFrom, date_to: dateTo});
 
-      $('div#chart_container').fadeOut(200, function() {
+      $('div#chart_container').fadeOut('fast', function() {
         $(this).empty();
         //draw the grid here
         api.getInsights(account, facetdefs, dateFrom, dateTo, function(response) {
           api.setInsightData(response, true); 
           heatmap.drawFromDateObj(api.insightData, true);
         });
-      $('div#chart_container').fadeIn();
+      $('div#chart_container').fadeIn('slow');
       });
 });
 });
