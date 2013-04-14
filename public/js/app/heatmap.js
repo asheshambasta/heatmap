@@ -155,7 +155,6 @@ var HeatMap = function(holder, dateObj, paint, threshold) {
         'background-color', 
         function(cellValue) { 
           var colour = that.getColour(cellValue, sumCells);
-          console.log(cellValue + ':' + colour);
           return colour; 
         });
         return this;
@@ -188,8 +187,6 @@ var HeatMap = function(holder, dateObj, paint, threshold) {
       $("div#svg").empty();
 
       for(date in dateObj) {
-        console.log("Adding row looks like: ");
-        console.log(dateObj[date]);
         //make an array out of the given date
         var dateArr = [];
         for(time in dateObj[date]) {

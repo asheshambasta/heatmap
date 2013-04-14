@@ -59,7 +59,6 @@ var API = function(accessToken) {
         url: 'ajax/api.php',
         data: data,
         success: function(response) {
-          console.log(response);
           if(200 == response.meta.code) {
             var i;
             for(i = 0; i < response.response.count; i++) {
@@ -93,14 +92,11 @@ var API = function(accessToken) {
         user_id: userID
       };
 
-      console.log("Using data: ");
-      console.log(data);
       $.ajax({
         async: false,
         url: 'ajax/api.php',
         data: data,
         success: function(response) {
-          console.log(response);
           apiResponse = response;
           if ("function" == typeof callback) {
             callback(apiResponse);
