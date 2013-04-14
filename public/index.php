@@ -35,6 +35,7 @@ if(!isset($_SESSION['access_token'])) {
     <input type="text" id="facetdefinitions" placeholder="Facetdefinitions"/><br>
     <input type="text" id="date_from" placeholder="Date from"/><br>
     <input type="text" id="date_to" placeholder="Date to"/><br>
+    <input type="text" id="threshold" placeholder="Threshold"/><br>
 <input type="submit" value="Draw"/>
   </div>
   <div id="svg" class="rightbox">

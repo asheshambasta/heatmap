@@ -1,9 +1,11 @@
-var HeatMap = function(holder, dateObj, paint) {
+var HeatMap = function(holder, dateObj, paint, threshold) {
   var sumCells = 0,
   allCellValues = [],
   maxCellValue = null,
   numCells = 0,
   avg = 0;
+
+  threshold = threshold || 0;
 
   $(holder).empty();
 
@@ -66,7 +68,7 @@ var HeatMap = function(holder, dateObj, paint) {
         scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
         scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 20, 20]),
         x, y,
-        colour = this.getColour(max, sum),
+        colour = this.getColour(max, sum, true),
         distinct = {};
 
       for(i = 0; i < values.length; i++) {
@@ -110,7 +112,6 @@ var HeatMap = function(holder, dateObj, paint) {
 
       avg = sum / values.length;
 
-
       var drawLine = d3.svg
         .line()
         .x(function(d) {return d.x;})
@@ -121,12 +122,12 @@ var HeatMap = function(holder, dateObj, paint) {
         .attr("d", drawLine(path));
         
         path
-        .style("opacity", "0.2")
-        .transition()
-        .style("opacity", "1.0")
-        .style("stroke-width", 2)
-        .style("stroke", colour)
-        .style("fill", "none");
+          .style("opacity", "0.2")
+          .transition()
+          .style("opacity", "1.0")
+          .style("stroke-width", 2)
+          .style("stroke", colour)
+          .style("fill", "none");
 
     },
 
@@ -147,7 +148,7 @@ var HeatMap = function(holder, dateObj, paint) {
         return this;
     },
 
-    getColour: function(cellValue, sumCells) {
+    getColour: function(cellValue, sumCells, forGraph) {
       var G, A, 
       side = (cellValue > avg),
       diffFromMax = maxCellValue - cellValue,
@@ -158,6 +159,10 @@ var HeatMap = function(holder, dateObj, paint) {
       //the smaller diffFromMax, the redder it should be.
       G = Math.round(100 * diffFrac);
       A = 0.15 + cellValue/maxCellValue * 0.85;
+      if(threshold && threshold > cellValue && !forGraph) {
+        R = B = G = 200;
+        A = 0.15;
+      }
       return 'rgba(' + R + ',' + G + ',' + B + ',' + A + ')';
     },
 

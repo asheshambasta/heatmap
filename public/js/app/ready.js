@@ -24,6 +24,7 @@ $(document).ready(
       facetdefs = JSON.parse($('input[placeholder="Facetdefinitions"]').val()),
       dateFrom = $('input[placeholder="Date from"]').val(),
       dateTo = $('input[placeholder="Date to"]').val(),
+      threshold = $('input[placeholder="Threshold"]').val(),
       goAhead = account && facetdefs && dateFrom && dateTo;
 
       if(!goAhead) {
@@ -37,7 +38,7 @@ $(document).ready(
         //draw the grid here
         api.getInsights(account, facetdefs, dateFrom, dateTo, function(response) {
           api.setInsightData(response, true); 
-          var heatMap  = new HeatMap(chartContainerStr, api.getInsightData(), true);
+          var heatMap  = new HeatMap(chartContainerStr, api.getInsightData(), true, threshold);
         });
       $(chartContainerStr).fadeIn('slow');
       });
