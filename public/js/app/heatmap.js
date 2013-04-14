@@ -27,14 +27,13 @@ var HeatMap = function(holder, dateObj, paint) {
       for(i = 0; i < cellValues.length; i++) {
         sumCells += cellValues[i];
         allCellValues.push(cellValues[i]);
-        maxCellValue = 
-          typeof maxCellValue !== "number" ? 
-          cellValues[i] : Math.max(maxCellValue, cellValues[i]);
 
         var cellID = "cell_" + newRowID + "_" + i;
         row.append('div').classed('cell_white', true).attr('id', cellID);
         cellTitles.push(date + ' ' + i + ':00, ' + cellValues[i]);
       }
+
+      maxCellValue = Math.max(d3.max(cellValues), maxCellValue || 0);
 
       row.selectAll('div').data(cellTitles).attr(
         'title', 
@@ -58,7 +57,7 @@ var HeatMap = function(holder, dateObj, paint) {
       height = height || 300;
       var container = d3.select(containerIdentifier),
         canvas = container.append("svg:svg").attr("width", width).attr("height", height),
-        max = values[0] || 0,
+        max = d3.max(values),
         i = 0,
         path = [],
         avg,
@@ -67,7 +66,6 @@ var HeatMap = function(holder, dateObj, paint) {
       for(i = 0; i < values.length; i++) {
         path.push({x: i, y: values[i]});
         sum += values[i];
-        max = Math.max(max, values[i]);
       }
 
       avg = sum / values.length;
@@ -125,6 +123,7 @@ var HeatMap = function(holder, dateObj, paint) {
       allCellValues = [],
       maxCellValue = null,
       numCells = 0;
+      $("div#svg").empty();
 
       for(date in dateObj) {
         console.log("Adding row looks like: ");
