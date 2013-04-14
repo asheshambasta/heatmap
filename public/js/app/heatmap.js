@@ -13,7 +13,9 @@ var HeatMap = function(holder, dateObj, paint) {
       rows = container.selectAll('div.row'),
       newRowID = "row_" + rows[0].length,
       row,
-      i;
+      i,
+      cellTitles = [],
+      that = this;
 
       numCells += cellValues.length;
 
@@ -31,16 +33,65 @@ var HeatMap = function(holder, dateObj, paint) {
 
         var cellID = "cell_" + newRowID + "_" + i;
         row.append('div').classed('cell_white', true).attr('id', cellID);
-        cellValues[i] = date + ' ' + i + ':00, ' + cellValues[i];
+        cellTitles.push(date + ' ' + i + ':00, ' + cellValues[i]);
       }
-      row.selectAll('div').data(cellValues).attr(
+
+      row.selectAll('div').data(cellTitles).attr(
         'title', 
-        function(cellValue) {
-          return cellValue;
+        function(cellTitle) {
+          return cellTitle;
+        });
+
+        row.attr('data-values', cellValues.join());
+
+        $('div#' + newRowID).click(function(event) {
+          event.preventDefault();
+          that.drawGraph('div#' + newRowID);
         });
 
         avg = sumCells / allCellValues.length;
         return this;
+    },
+
+    drawGraph: function(rowIdentifier, containerIdentifier, width, height) {
+      containerIdentifier = containerIdentifier || "div#svg";
+      $(containerIdentifier).empty();
+      width = width || 300;
+      height = height || 300;
+      var values = ($(rowIdentifier).data('values')).split(','),
+        container = d3.select(containerIdentifier),
+        canvas = container.append("svg:svg").attr("width", width).attr("height", height),
+        dx = width/values.length,
+        max = values[0],
+        i = 0,
+        yscale,
+        path = [],
+        x = 0;
+
+      for(i = 1; i < values.length; i++) {
+        max = Math.max(max, values[i]);
+      }
+
+      yscale = height/max;
+
+      for(i = 0, x = 0; i < values.length; i++, x += dx) {
+        path.push({x: x, y: (height - values[i] * yscale)});
+      }
+
+      var drawLine = d3.svg
+        .line()
+        .x(function(d) {return d.x;})
+        .y(function(d) {return d.y;})
+        .interpolate("linear");
+
+      canvas.append("svg:path")
+        .attr("d", drawLine(path))
+        .style("stroke-width", 2)
+        .style("stroke", "red")
+        .style("fill", "none");
+
+      console.log(path);
+
     },
 
     paintGrid: function() {

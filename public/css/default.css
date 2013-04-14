@@ -12,11 +12,20 @@
   height: 15px;
   border: 2px solid white;
 }
-#form {
+.rightbox {
   float: left;
   position: absolute;
-  left: 700px;
+  box-shadow: 3px 4px 4px #F5F5F5;
+}
+#form {
   top: 50px;
+  left: 700px;
+}
+#svg {
+  width: 400 px;
+  height: 400px;
+  top: 200px;
+  left: 750px;
 }
 #chart_container {
   box-shadow: 3px 4px 4px #F5F5F5;
