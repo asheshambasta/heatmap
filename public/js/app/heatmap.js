@@ -42,38 +42,33 @@ var HeatMap = function(holder, dateObj, paint) {
           return cellTitle;
         });
 
-        row.attr('data-values', cellValues.join());
-
         $('div#' + newRowID).click(function(event) {
           event.preventDefault();
-          that.drawGraph('div#' + newRowID);
+          that.drawGraph(cellValues, 'div#' + newRowID);
         });
 
         avg = sumCells / allCellValues.length;
         return this;
     },
 
-    drawGraph: function(rowIdentifier, containerIdentifier, width, height) {
+    drawGraph: function(values, rowIdentifier, containerIdentifier, width, height) {
       containerIdentifier = containerIdentifier || "div#svg";
       $(containerIdentifier).empty();
       width = width || 300;
       height = height || 300;
-      var values = ($(rowIdentifier).data('values')).split(','),
-        container = d3.select(containerIdentifier),
+      var container = d3.select(containerIdentifier),
         canvas = container.append("svg:svg").attr("width", width).attr("height", height),
-        dx = width/values.length,
         max = values[0],
         i = 0,
-        x = 0,
         path = [];
 
-      for(i = 0, x = 0; i < values.length; i++, x += dx) {
-        path.push({x: x, y: values[i]});
+      for(i = 0; i < values.length; i++) {
+        path.push({x: i, y: values[i]});
         sumCells += values[i];
         max = Math.max(max, values[i]);
       }
 
-      var scaleX = d3.scale.linear().domain([0, width]).range([0, width]),
+      var scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
         scaleY = d3.scale.linear().domain([0, max]).range([height - 50, 20]);
 
       var drawLine = d3.svg
