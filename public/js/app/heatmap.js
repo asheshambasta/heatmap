@@ -58,7 +58,7 @@ var HeatMap = function(holder, dateObj, paint) {
       height = height || 300;
       var container = d3.select(containerIdentifier),
         canvas = container.append("svg:svg").attr("width", width).attr("height", height),
-        max = values[0],
+        max = values[0] || 0,
         i = 0,
         path = [];
 
@@ -69,7 +69,7 @@ var HeatMap = function(holder, dateObj, paint) {
       }
 
       var scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
-        scaleY = d3.scale.linear().domain([0, max]).range([height - 50, 20]);
+        scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 50, 20]);
 
       var drawLine = d3.svg
         .line()
