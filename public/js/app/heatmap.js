@@ -58,32 +58,52 @@ var HeatMap = function(holder, dateObj, paint) {
       var container = d3.select(containerIdentifier),
         canvas = container.append("svg:svg").attr("width", width).attr("height", height),
         max = d3.max(values),
+        sum = d3.sum(values),
         i = 0,
         path = [],
+        circles =[],
         avg,
-        sum = 0;
+        scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
+        scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 50, 20]),
+        x, y,
+        colour = this.getColour(max, sum);
 
       for(i = 0; i < values.length; i++) {
-        path.push({x: i, y: values[i]});
-        sum += values[i];
+        x = scaleX(i),
+        y = scaleY(values[i]);
+        path.push({x: x, y: y});
+        circles.push({cx: x, cy: y, r: 10});
+        canvas.append("circle")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", 5)
+        .attr("title", values[i] + " mentions")
+        .style("fill", "grey")
+        .style("opacity", 0.2)
       }
 
       avg = sum / values.length;
 
-      var scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
-        scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 50, 20]);
 
       var drawLine = d3.svg
         .line()
-        .x(function(d) {return scaleX(d.x);})
-        .y(function(d) {return scaleY(d.y);})
+        .x(function(d) {return d.x;})
+        .y(function(d) {return d.y;})
         .interpolate("cardinal");
+
+      var circleElems = canvas.data(circles).append("circle");
+      var drawCircles = circleElems
+        .attr("cx", function(d) {return d.cx;})
+        .attr("cy", function(d) {return d.cy;})
+        .attr("r", function(d) {return d.r;})
+        .style("fill", function(d) {return colour;})
 
       canvas.append("svg:path")
         .attr("d", drawLine(path))
         .style("stroke-width", 2)
-        .style("stroke", this.getColour(max, sum))
+        .style("stroke", colour)
         .style("fill", "none");
+
     },
 
     paintGrid: function() {
