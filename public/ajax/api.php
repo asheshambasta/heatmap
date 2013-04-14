@@ -84,24 +84,23 @@ if(!empty($cacheData->data)) {
 
     $responseArr = array('keys' => array(), 'values' => array());
     while($timeFrom <= $timeTo) {
-      $date = date('Y-m-d', $timeFrom);
-      if(!isset($cacheArr[$date]) && !isset($times[$i])) {
-        $times[$i] = array($date);
+      $date = date('Y-m-d H:i', $timeFrom);
+      $timeStr = strval($timeFrom);
+      if(!isset($cacheArr[$timeStr]) && !isset($times[$i])) {
+        $times[$i] = array($timeStr);
       } 
 
       if (isset($times[$i])) {
-        $times[$i][1] = $date;
+        $times[$i][1] = $timeStr;
       } 
 
-      $i += isset($cacheArr[$date]) ? 1 : 0;
+      $i += isset($cacheArr[$timeStr]) ? 1 : 0;
 
-      if(isset($cacheArr[$date])) {
-        foreach($cacheArr[$date] as $time => $value) {
-          $responseArr['keys'][] = $date . " " . $time;
-          $responseArr['values'][] = $value;
-        }
+      if(isset($cacheArr[$timeStr])) {
+          $responseArr['keys'][] = $timeFrom;
+          $responseArr['values'][] = $cacheArr[$timeStr];
       }
-      $timeFrom += $dayLen;
+      $timeFrom += 3600;
     }
 
     $__GET = $_GET;
@@ -110,8 +109,8 @@ if(!empty($cacheData->data)) {
       if($range[0] == $range[1]) {
         continue;
       }
-      $__GET['date_from'] = $range[0];
-      $__GET['date_to'] = $range[1];
+      $__GET['date_from'] = date('Y-m-d', $range[0]);
+      $__GET['date_to'] = date('Y-m-d', $range[1]);
       $request = array();
       $params = array_keys($_GET);
       foreach($params as $param) {
@@ -131,7 +130,7 @@ if(!empty($cacheData->data)) {
         $i = 0;
         foreach($_response['response'][0]['keys'] as $key) {
           $timestamp = $key['name'];
-          $responseArr['keys'][] = date('Y-m-d H:i', $timestamp);
+          $responseArr['keys'][] = $timestamp;
           $responseArr['values'][] = $_response['response'][0]['data'][0][$i];
           $i++;
         }
@@ -158,8 +157,8 @@ if(!empty($cacheData->data)) {
       $responseKeys = $responseArr['keys'];
       $responseData = $responseArr['values'];
 
-      foreach($responseKeys as $index => $dateTime) {
-        if(FALSE !== strpos($dateTime, $curDate)) {
+      foreach($responseKeys as $index => $timestamp) {
+        if($timestamp >= time()) {
           unset($responseKeys[$index]);
           unset($responseData[$index]);
         }
@@ -170,16 +169,10 @@ if(!empty($cacheData->data)) {
       $insightCacheObj = $bucket->get($insightKey);
       //cache the rest to riak now
       $_cache = !empty($insightCacheObj->data) ? $insightCacheObj->data[0] : array();
-      foreach($responseKeys as $index => $dateTime) {
-        $date = $dateTime;
-        $dateSplit = explode(" ", $date);
-        $day = 
-          preg_replace("/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/", "$3-$2-$1", $dateSplit[0]);
-        $time = $dateSplit[1];
-        if (!isset($_cache[$day])) {
-          $_cache[$day] = array();
-        }
-        $_cache[$day][$time] = $responseData[$index];
+      foreach($responseKeys as $index => $timestamp) {
+
+        $timeStr = strval($timestamp);
+        $_cache[$timeStr]  = $responseData[$index];
       }
       //normalize cache, don't leave gaps
       $_response = array();
@@ -187,12 +180,17 @@ if(!empty($cacheData->data)) {
       $timeTo = strtotime($_GET['date_to']);
       $dayLen = 24 * 3600;
       while($timeFrom < $timeTo) {
-        $key = date('Y-m-d', $timeFrom);
+        $key = strval($timeFrom);
+        $day = date("Y-m-d", $timeFrom);
+        $time = date("H:i", $timeFrom);
         if(!isset($_cache[$key])) {
-          $_cache[$key] = array();
+          $_cache[$key] = 0;
         }
-        $_response[$key] = $_cache[$key];
-        $timeFrom += $dayLen;
+        if(!isset($_response[$day])) {
+          $_response[$day] = array();
+        }
+        $_response[$day][$time] = $_cache[$key];
+        $timeFrom += 3600;
       }
       $cacheData = $bucket->newObject($insightKey, array($_cache));
       $response = json_encode($_response);
