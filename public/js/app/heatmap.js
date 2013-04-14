@@ -66,23 +66,26 @@ var HeatMap = function(holder, dateObj, paint) {
         i = 0,
         yscale,
         path = [],
-        x = 0;
+        x = 0,
+        that = this,
+        sumCells = 0;
 
       for(i = 1; i < values.length; i++) {
         max = Math.max(max, values[i]);
       }
 
-      yscale = height/max;
+      yscale = (height - 100)/max;
 
       for(i = 0, x = 0; i < values.length; i++, x += dx) {
-        path.push({x: x, y: (height - values[i] * yscale)});
+        path.push({x: x, y: (height - 50 - values[i] * yscale), orig: values[i]});
+        sumCells += values[i];
       }
 
       var drawLine = d3.svg
         .line()
         .x(function(d) {return d.x;})
         .y(function(d) {return d.y;})
-        .interpolate("linear");
+        .interpolate("cardinal");
 
       canvas.append("svg:path")
         .attr("d", drawLine(path))
