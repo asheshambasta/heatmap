@@ -74,6 +74,7 @@ var HeatMap = function(holder, dateObj, paint) {
         path.push({x: x, y: y});
         circles.push({cx: x, cy: y, r: 10});
         canvas.append("circle")
+        .transition()
         .attr("cx", x)
         .attr("cy", y)
         .attr("r", 5)
@@ -99,6 +100,7 @@ var HeatMap = function(holder, dateObj, paint) {
         .style("fill", function(d) {return colour;})
 
       canvas.append("svg:path")
+        .transition()
         .attr("d", drawLine(path))
         .style("stroke-width", 2)
         .style("stroke", colour)
