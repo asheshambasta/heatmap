@@ -60,13 +60,17 @@ var HeatMap = function(holder, dateObj, paint) {
         canvas = container.append("svg:svg").attr("width", width).attr("height", height),
         max = values[0] || 0,
         i = 0,
-        path = [];
+        path = [],
+        avg,
+        sum = 0;
 
       for(i = 0; i < values.length; i++) {
         path.push({x: i, y: values[i]});
-        sumCells += values[i];
+        sum += values[i];
         max = Math.max(max, values[i]);
       }
+
+      avg = sum / values.length;
 
       var scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
         scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 50, 20]);
@@ -80,7 +84,7 @@ var HeatMap = function(holder, dateObj, paint) {
       canvas.append("svg:path")
         .attr("d", drawLine(path))
         .style("stroke-width", 2)
-        .style("stroke", "red")
+        .style("stroke", this.getColour(max, sum))
         .style("fill", "none");
     },
 
