@@ -56,7 +56,7 @@ var HeatMap = function(holder, dateObj, paint) {
       width = width || 300;
       height = height || 300;
       var container = d3.select(containerIdentifier),
-        canvas = container.append("svg:svg").attr("width", width).attr("height", height),
+        canvas = container.append("svg:svg").attr("width", width).attr("height", height).attr("id", "canvas"),
         max = d3.max(values),
         sum = d3.sum(values),
         i = 0,
@@ -64,24 +64,49 @@ var HeatMap = function(holder, dateObj, paint) {
         circles =[],
         avg,
         scaleX = d3.scale.linear().domain([0, values.length - 1]).range([0, width]),
-        scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 50, 20]),
+        scaleY = d3.scale.linear().domain([0, maxCellValue]).range([height - 20, 20]),
         x, y,
-        colour = this.getColour(max, sum);
+        colour = this.getColour(max, sum),
+        distinct = {};
 
       for(i = 0; i < values.length; i++) {
         x = scaleX(i),
         y = scaleY(values[i]);
         path.push({x: x, y: y});
-        circles.push({cx: x, cy: y, r: 10});
+
         canvas.append("circle")
-        .transition()
-        .attr("cx", x)
-        .attr("cy", y)
-        .attr("r", 5)
-        .attr("title", values[i] + " mentions")
-        .style("fill", "grey")
-        .style("opacity", 0.2)
-      }
+          .attr("cx", x)
+          .attr("cy", height)
+          .attr("r", 1)
+          .style("opacity", 0.2)
+          .transition()
+          .attr("cy", y)
+          .attr("r", 5)
+          .attr("title", values[i] + " mentions")
+          .style("fill", "grey")
+          .transition()
+          .style("opacity", 0.5)
+          .transition()
+          .style("opacity", 0.3);
+
+        canvas.append("text")
+          .attr("x", x)
+          .attr("y", height)
+          .style("fill", "grey")
+          .style("font-size", "xx-small")
+          .text(i);
+
+        if(!distinct[values[i]]) {
+          canvas.append("text")
+          .attr("x", 0)
+          .attr("y", y)
+          .style("fill", "grey")
+          .style("font-size", "xx-small")
+          .text(values[i]);
+          }
+
+        distinct[values[i]]  = true;
+        }
 
       avg = sum / values.length;
 
@@ -92,16 +117,13 @@ var HeatMap = function(holder, dateObj, paint) {
         .y(function(d) {return d.y;})
         .interpolate("cardinal");
 
-      var circleElems = canvas.data(circles).append("circle");
-      var drawCircles = circleElems
-        .attr("cx", function(d) {return d.cx;})
-        .attr("cy", function(d) {return d.cy;})
-        .attr("r", function(d) {return d.r;})
-        .style("fill", function(d) {return colour;})
-
-      canvas.append("svg:path")
+      var path = canvas.append("svg:path")
+        .attr("d", drawLine(path));
+        
+        path
+        .style("opacity", "0.2")
         .transition()
-        .attr("d", drawLine(path))
+        .style("opacity", "1.0")
         .style("stroke-width", 2)
         .style("stroke", colour)
         .style("fill", "none");
