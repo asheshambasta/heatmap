@@ -64,27 +64,22 @@ var HeatMap = function(holder, dateObj, paint) {
         dx = width/values.length,
         max = values[0],
         i = 0,
-        yscale,
-        path = [],
         x = 0,
-        that = this,
-        sumCells = 0;
+        path = [];
 
-      for(i = 1; i < values.length; i++) {
+      for(i = 0, x = 0; i < values.length; i++, x += dx) {
+        path.push({x: x, y: values[i]});
+        sumCells += values[i];
         max = Math.max(max, values[i]);
       }
 
-      yscale = (height - 100)/max;
-
-      for(i = 0, x = 0; i < values.length; i++, x += dx) {
-        path.push({x: x, y: (height - 50 - values[i] * yscale), orig: values[i]});
-        sumCells += values[i];
-      }
+      var scaleX = d3.scale.linear().domain([0, width]).range([0, width]),
+        scaleY = d3.scale.linear().domain([0, max]).range([height - 50, 20]);
 
       var drawLine = d3.svg
         .line()
-        .x(function(d) {return d.x;})
-        .y(function(d) {return d.y;})
+        .x(function(d) {return scaleX(d.x);})
+        .y(function(d) {return scaleY(d.y);})
         .interpolate("cardinal");
 
       canvas.append("svg:path")
@@ -92,9 +87,6 @@ var HeatMap = function(holder, dateObj, paint) {
         .style("stroke-width", 2)
         .style("stroke", "red")
         .style("fill", "none");
-
-      console.log(path);
-
     },
 
     paintGrid: function() {
