@@ -76,6 +76,10 @@ var HeatMap = function(holder, dateObj, paint, threshold) {
         y = scaleY(values[i]);
         path.push({x: x, y: y});
 
+        if (threshold && threshold > values[i]) {
+          continue;
+        }
+
         canvas.append("circle")
           .attr("cx", x)
           .attr("cy", height)
@@ -128,6 +132,15 @@ var HeatMap = function(holder, dateObj, paint, threshold) {
           .style("stroke-width", 2)
           .style("stroke", colour)
           .style("fill", "none");
+
+          if(threshold) {
+            canvas.append("svg:path")
+              .attr("d", drawLine([{x: 0, y: scaleY(threshold)}, {x: width, y: scaleY(threshold)}]))
+              .style("opacity", "0.3")
+              .style("stroke-width", 1)
+              .style("stroke", "grey")
+              .style("fill", "none");
+          }
 
     },
 
