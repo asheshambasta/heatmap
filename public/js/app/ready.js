@@ -21,14 +21,20 @@ $(document).ready(
     event.preventDefault();
     //gather data from all the input fields and submit
     var account = $('select#account').val(),
-      facetdefs = JSON.parse($('input[placeholder="Facetdefinitions"]').val()),
+      facetdefs = $('input[placeholder="Facetdefinitions"]').val(),
       dateFrom = $('input[placeholder="Date from"]').val(),
       dateTo = $('input[placeholder="Date to"]').val(),
       threshold = $('input[placeholder="Threshold"]').val(),
       goAhead = account && facetdefs && dateFrom && dateTo;
 
+      try {
+        facetdefs = JSON.parse(facetdefs);
+      } catch(e) {
+        goAhead = false;
+      }
+
       if(!goAhead) {
-        alert("Are you sure all fields are set?");
+        alert("Are you sure all fields are set correctly?");
         return;
       }
       console.log({account: account, facetdefinitions: facetdefs, date_from: dateFrom, date_to: dateTo});
